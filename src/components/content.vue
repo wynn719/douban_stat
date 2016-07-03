@@ -1,7 +1,10 @@
 <template>
   <div class="content">
-    <!-- 简单 -->
+    <spinner id="spinner-box" :size="lg" text="读取中..." v-ref:spinner ></spinner>
+    
     <h2>{{ user.name }}的{{ readYear }}年豆瓣读书记录</h2>
+
+    <!-- 基础统计 -->
     <div class="read-info">
       <p>总阅读量：<strong>{{ booksTotal }}</strong>本</p>
       <p>总阅读时间：<strong>{{ readTime.allReadDay }}</strong>天</p>
@@ -10,13 +13,13 @@
       <p>平均阅读时间：<strong>{{ readTime.averageDay }}</strong>天/本</p>
     </div>
 
-    <h2>#图表统计</h2>
+    <!-- 统计表 -->
+    <h3># 图表统计</h3>
     <chart :chart-data="chartData.statu"></chart>
-    <!-- 评分分级统计表 -->
     <chart :chart-data="chartData.rating"></chart>
     
     <!-- 阅读标签 -->
-    <h2>#读书标签</h2>
+    <h3 class="tags-title"># 读书标签</h3>
     <div class="read-tags">
       <span class="tag label label-info" v-for="tag in tags" style="display: inline-block">{{ tag }}</span>
     </div>
@@ -24,7 +27,7 @@
 </template>
 
 <script>
-import { tabset, tab } from 'vue-strap'
+import { spinner } from 'vue-strap'
 import bookChart from './chart.vue'
 
 const urlRoot = 'https://api.douban.com/v2'
@@ -33,8 +36,7 @@ const readYear = '2016'
 
 export default {
   components: {
-    'tab': tab,
-    'tabs': tabset,
+    'spinner': spinner,
     'chart': bookChart
   },
 
@@ -45,7 +47,6 @@ export default {
 
     self.fetchBooks({}, (data) => { // 数据处理与绑定
       let formatData = self.formatDataForChart(data)
-      console.log(formatData)
       // 设置统计数据
       self.setStatistics(formatData)
       // 设置标签信息
@@ -55,9 +56,15 @@ export default {
       self.setBooksRatingsChart(formatData)
       // 设置在读，想读，已读模块
       // self.setReadStatus()
+      // 隐藏loading块
+      this.$refs.spinner.hide()
     }, (error) => {
       console.log(error)
     })
+  },
+
+  ready: function () {
+    this.$refs.spinner.show()
   },
 
   data () {
@@ -76,8 +83,6 @@ export default {
       readYear: ''
     }
   },
-
-  ready: function () {},
 
   methods: {
     /**
@@ -221,18 +226,21 @@ export default {
           {
             name: '在读',
             type: 'bar',
+            stack: '读书状态',
             data: data[readYear].status.reading
           },
 
           {
             name: '想读',
             type: 'bar',
+            stack: '读书状态',
             data: data[readYear].status.wish
           },
 
           {
             name: '已读',
             type: 'bar',
+            stack: '读书状态',
             data: data[readYear].status.read
           }
         ]
@@ -425,12 +433,6 @@ export default {
 <!-- Add "scoped" attribute to limit CSS to this component only -->
 <style scoped lang="less">
 .content {
-  margin: 100px 0;
-  background-color: #fff;
-  box-sizing: border-box;
-  padding: 55px;
-  border-radius: 6px;
-
   h2{
     margin-bottom: 25px;
   }
@@ -446,14 +448,14 @@ export default {
     }
   }
 
-  .echarts {
-    margin-bottom: 25px;
-  }
-
   .read-tags {
     .tag {
-      margin: 3px 4px;
+      margin: 2px 4px;
     }
+  }
+
+  .tags-title {
+    margin-bottom: 20px;
   }
 }
 </style>
