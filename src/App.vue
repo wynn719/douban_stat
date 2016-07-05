@@ -3,6 +3,9 @@
     <!-- <app-header></app-header> -->
     <app-content></app-content>
     <!-- <app-footer></app-footer> -->
+
+    <!-- 路由外链 -->
+    <router-view></router-view>
   </div>
 </template>
 
