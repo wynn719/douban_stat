@@ -2,7 +2,7 @@
   <div id="app" class="container" style="max-width: 740px;">
     <!-- <app-header></app-header> -->
     <app-content></app-content>
-    <!-- <app-footer></app-footer> -->
+    <app-footer></app-footer>
 
     <!-- 路由外链 -->
     <router-view></router-view>
@@ -25,10 +25,18 @@ export default {
 }
 </script>
 
-<style>
+<style lang="less">
 body {
   background-color: #f4f4f4 !important;
   font-family: "Microsoft Yahei" !important;
 }
-#app {}
+#app {
+  margin: 100px auto;
+  background-color: #fff;
+  box-sizing: border-box;
+  padding: 55px;
+  border-radius: 6px;
+  position: relative;
+  padding-bottom: 30px;
+}
 </style>
