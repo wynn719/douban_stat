@@ -1,25 +1,19 @@
 <template>
-  <div id="app" class="container" style="max-width: 740px;">
+  <div class="container">
     <!-- <app-header></app-header> -->
-    <app-content></app-content>
-    <app-footer></app-footer>
-
-    <!-- 路由外链 -->
     <router-view></router-view>
+    <app-footer></app-footer>
   </div>
 </template>
 
 <script>
 import 'bootstrap/dist/css/bootstrap.min.css'
-
 import AppHeader from './components/header.vue'
-import AppContent from './components/content.vue'
 import AppFooter from './components/footer.vue'
 
 export default {
   components: {
     'app-header': AppHeader,
-    'app-content': AppContent,
     'app-footer': AppFooter
   }
 }
@@ -38,5 +32,8 @@ body {
   border-radius: 6px;
   position: relative;
   padding-bottom: 30px;
+}
+.container {
+  max-width: 740px;
 }
 </style>

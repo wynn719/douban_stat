@@ -22,16 +22,18 @@
     <h3 class="tags-title"># 读书标签</h3>
     <div class="read-tags">
       <span class="tag label label-info" v-for="tag in tags" style="display: inline-block">{{ tag }}</span>
+      <p class="no-tag" v-if="!tags.length">Ta今年还没有打任何标签</p>
     </div>
   </div>
 </template>
 
 <script>
 import { spinner } from 'vue-strap'
-import bookChart from './chart.vue'
+import bookChart from '../components/chart.vue'
+import douban from '../douban.js'
 
-const urlRoot = 'https://api.douban.com/v2'
-const userID = '81245114'
+let userID = ''
+const URL_ROOT = 'https://api.douban.com/v2'
 const readYear = '2016'
 
 export default {
@@ -44,27 +46,27 @@ export default {
     let self = this
 
     self.setUser()
+  },
 
-    self.fetchBooks({}, (data) => { // 数据处理与绑定
-      let formatData = self.formatDataForChart(data)
+  ready: function () {
+    let self = this
+    this.$refs.spinner.show()
+    userID = this.$route.query.userid
+    douban.fetchBooks({
+      userID: userID
+    }, (data) => { // 数据处理与绑定
       // 设置统计数据
-      self.setStatistics(formatData)
+      self.setStatistics(data)
       // 设置标签信息
-      self.setTagsInfo(formatData)
+      self.setTagsInfo(data)
       // 设置图表
-      self.setBooksChart(formatData)
-      self.setBooksRatingsChart(formatData)
-      // 设置在读，想读，已读模块
-      // self.setReadStatus()
+      self.setBooksChart(data)
+      self.setBooksRatingsChart(data)
       // 隐藏loading块
       this.$refs.spinner.hide()
     }, (error) => {
       console.log(error)
     })
-  },
-
-  ready: function () {
-    this.$refs.spinner.show()
   },
 
   data () {
@@ -85,87 +87,6 @@ export default {
   },
 
   methods: {
-    /**
-     * 取得所有的图书收藏信息
-     * 注：豆瓣限制了每次请求的图书数量，故通过多次请求来获取所有的数据
-     * @param  object   options 豆瓣图书收藏信息可选参数
-     * @param  function fnSuccess
-     * @param  function fnError
-     */
-    fetchBooks: function (options, fnSuccess, fnError) {
-      let self = this
-      let param1 = {
-        count: 1
-      }
-      Object.assign(param1, options)
-      // 第一次拉取，主要是拉取基础数据
-      self.getBook(param1).then((basicData) => {
-        // 第二次拉取所有的数据
-        let arr = []
-        for (let start = 0, len = basicData.total; start < len; start += 100) {
-          arr.push(start)
-        }
-
-        let promises = arr.map(function (start) {
-          let params2 = {
-            start: start,
-            count: 100
-          }
-          Object.assign(params2, options)
-          return self.$http.jsonp(urlRoot + '/book/user/' + userID + '/collections', params2).then((response) => {
-            if (response.status === 200) {
-              return response.data
-            }
-          })
-        })
-        Promise.all(promises).then((response) => { // 整合所有promise获取完整的书籍数据
-          // 整合数据
-          let data = {
-            collections: [],
-            total: 0
-          }
-          for (let i = 0, len = response.length; i < len; i++) {
-            let res = response[i].collections
-            for (let j = 0, len1 = res.length; j < len1; j++) {
-              data.collections.push(res[j])
-            }
-          }
-          data.total = basicData.total
-          fnSuccess(data)
-        }).catch((err) => {
-          fnError(err)
-        })
-      })
-    },
-
-    /**
-     * 获取某个用户的图书收藏信息
-     * 注：只拉取一次
-     * @param  object  options 豆瓣图书收藏信息可选参数
-     * @return promise
-     */
-    getBook: function (options) {
-      let self = this
-      let params = {
-        count: 100 // 豆瓣api限定，count最大为100
-      }
-      Object.assign(params, options)
-      let promise = new Promise((resolve, reject) => {
-        self.$http.jsonp(urlRoot + '/book/user/' + userID + '/collections', params).then((response) => {
-          if (response.status === 200) {
-            let data = response.data
-
-            data.current = data.start + data.count
-            resolve(data)
-          }
-        }).catch((err) => {
-          reject(err)
-        })
-      })
-
-      return promise
-    },
-
     // 设置统计数据
     setStatistics: function (data) {
       let books = data[readYear]['books']['read']
@@ -329,73 +250,11 @@ export default {
     },
 
     /**
-     * 格式化所有数据，供图表等使用
-     * @param  object books 豆瓣获取的图书数据集
-     * @return object
-     */
-    formatDataForChart: function (books) {
-      let collections = books.collections
-      let data = {}
-      collections.forEach((item) => {
-        let updated = item.updated.substring(0, 7).split('-')
-        let year = updated[0]
-        let mouth = Number(updated[1])
-
-        if (!data[year]) {
-          data[year] = {}
-        }
-        // 年份
-        if (!data[year]['collections']) {
-          data[year]['collections'] = []
-        }
-        data[year]['collections'].push(item)
-        if (!data[year]['books']) {
-          data[year]['books'] = {}
-        }
-        if (!data[year]['books'][item.status]) {
-          data[year]['books'][item.status] = []
-        }
-        data[year]['books'][item.status].push(item)
-        // 月份读书量统计数据
-        if (!data[year]['status']) {
-          data[year]['status'] = {}
-        }
-        if (!data[year]['status'][item.status]) {
-          data[year]['status'][item.status] = []
-        }
-        for (let i = 0; i < 12; i++) { // 补空值
-          if (!data[year]['status'][item.status][i]) {
-            data[year]['status'][item.status][i] = null
-          }
-        }
-        data[year]['status'][item.status][mouth - 1]++
-        // 月份星级评价统计数据
-        if (!data[year]['rating']) {
-          data[year]['rating'] = {}
-        }
-        if (!item.rating) { // 用户无评价
-          item.rating = {}
-          item.rating.value = 'no-rating'
-        }
-        if (!data[year]['rating'][item.rating.value]) {
-          data[year]['rating'][item.rating.value] = []
-        }
-        for (let i = 0; i < 12; i++) { // 补空值
-          if (!data[year]['rating'][item.rating.value][i]) {
-            data[year]['rating'][item.rating.value][i] = null
-          }
-        }
-        data[year]['rating'][item.rating.value][mouth - 1]++
-      })
-      return data
-    },
-
-    /**
      * 设置用户基础信息
      */
     setUser: function () {
       let self = this
-      self.$http.jsonp(urlRoot + '/user/81245114').then((response) => {
+      self.$http.jsonp(URL_ROOT + '/user/' + userID).then((response) => {
         if (response.status === 200) {
           let data = response.data
 
@@ -403,6 +262,8 @@ export default {
 
           self.user = data
         }
+      }, (response) => {
+        self.loadFaild()
       })
     },
 
@@ -411,7 +272,7 @@ export default {
      * @param  object books 豆瓣获取的图书数据集
      */
     setTagsInfo: function (books) {
-      books = books['2016']
+      books = books[readYear]
       let ret = []
       let self = this
       books.collections.forEach((current) => {
@@ -425,6 +286,12 @@ export default {
         }
       })
       self.tags = ret
+    },
+
+    loadFaild: function () {
+      // 隐藏loading块
+      this.$refs.spinner.hide()
+      this.$router.go('unknown')
     }
   }
 }
@@ -449,8 +316,12 @@ export default {
   }
 
   .read-tags {
+    .no-tag {
+      color: #eee;
+    }
+
     .tag {
-      margin: 2px 4px;
+      margin: 3px 3px;
     }
   }
 
