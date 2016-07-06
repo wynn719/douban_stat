@@ -42,16 +42,13 @@ export default {
     'chart': bookChart
   },
 
-  created: function () {
-    let self = this
-
-    self.setUser()
-  },
+  created: function () {},
 
   ready: function () {
     let self = this
     this.$refs.spinner.show()
     userID = this.$route.query.userid
+    self.setUser()
     douban.fetchBooks({
       userID: userID
     }, (data) => { // 数据处理与绑定
