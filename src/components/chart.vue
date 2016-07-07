@@ -1,4 +1,4 @@
-<template>
+<template v-show="chartData">
   <chart :options="chartData"></chart>
 </template>
 
@@ -24,7 +24,6 @@ export default {
 <!-- Add "scoped" attribute to limit CSS to this component only -->
 <style scoped>
 .echarts {
-  height: 300px;
   margin-bottom: 25px;
 }
 </style>

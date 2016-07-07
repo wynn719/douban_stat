@@ -8,9 +8,9 @@
     <div class="read-info">
       <p>总阅读量：<strong>{{ booksTotal }}</strong>本</p>
       <p>总阅读时间：<strong>{{ readTime.allReadDay }}</strong>天</p>
-      <p>第一本书：于<strong>{{ readTime.firstReadDay }}</strong>读完《{{ firstRead.book && firstRead.book.title }}》</p>
-      <p>最近阅读：于<strong>{{ readTime.lastReadDay }}</strong>读完《{{ lastRead.book && lastRead.book.title }}》</p>
-      <p>平均阅读时间：<strong>{{ readTime.averageDay }}</strong>天/本</p>
+      <p v-show="readTime.firstReadDay">第一本书：于<strong>{{ readTime.firstReadDay }}</strong>读完《{{ firstRead.book && firstRead.book.title }}》</p>
+      <p v-show="readTime.lastReadDay">最近阅读：于<strong>{{ readTime.lastReadDay }}</strong>读完《{{ lastRead.book && lastRead.book.title }}》</p>
+      <p v-show="readTime.averageDay">平均阅读时间：<strong>{{ readTime.averageDay }}</strong>天/本</p>
     </div>
 
     <!-- 统计表 -->
@@ -52,6 +52,11 @@ export default {
     douban.fetchBooks({
       userID: userID
     }, (data) => { // 数据处理与绑定
+      data = data[readYear]
+      if (!data) {
+        this.$refs.spinner.hide()
+        return
+      }
       // 设置统计数据
       self.setStatistics(data)
       // 设置标签信息
@@ -72,7 +77,9 @@ export default {
       user: {},
       firstRead: {},
       lastRead: {},
-      readTime: {},
+      readTime: {
+        allReadDay: 0
+      },
       years: [],
       tags: [],
       chartData: {
@@ -86,7 +93,7 @@ export default {
   methods: {
     // 设置统计数据
     setStatistics: function (data) {
-      let books = data[readYear]['books']['read']
+      let books = data['books']['read']
       let self = this
       let readTime = {}
       let allReadTime = 0
@@ -145,21 +152,21 @@ export default {
             name: '在读',
             type: 'bar',
             stack: '读书状态',
-            data: data[readYear].status.reading
+            data: data.status.reading
           },
 
           {
             name: '想读',
             type: 'bar',
             stack: '读书状态',
-            data: data[readYear].status.wish
+            data: data.status.wish
           },
 
           {
             name: '已读',
             type: 'bar',
             stack: '读书状态',
-            data: data[readYear].status.read
+            data: data.status.read
           }
         ]
       }
@@ -204,42 +211,42 @@ export default {
             name: '未评',
             type: 'bar',
             stack: '星级评价',
-            data: data[readYear].rating['no-rating']
+            data: data.rating['no-rating']
           },
 
           {
             name: '一星',
             type: 'bar',
             stack: '星级评价',
-            data: data[readYear].rating['1']
+            data: data.rating['1']
           },
 
           {
             name: '二星',
             type: 'bar',
             stack: '星级评价',
-            data: data[readYear].rating['2']
+            data: data.rating['2']
           },
 
           {
             name: '三星',
             type: 'bar',
             stack: '星级评价',
-            data: data[readYear].rating['3']
+            data: data.rating['3']
           },
 
           {
             name: '四星',
             type: 'bar',
             stack: '星级评价',
-            data: data[readYear].rating['4']
+            data: data.rating['4']
           },
 
           {
             name: '五星',
             type: 'bar',
             stack: '星级评价',
-            data: data[readYear].rating['5']
+            data: data.rating['5']
           }
         ]
       }
@@ -269,7 +276,6 @@ export default {
      * @param  object books 豆瓣获取的图书数据集
      */
     setTagsInfo: function (books) {
-      books = books[readYear]
       let ret = []
       let self = this
       books.collections.forEach((current) => {

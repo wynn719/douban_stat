@@ -8,13 +8,19 @@ Vue.use(VueResource)
 Vue.http.options.root = 'https://api.douban.com'
 Vue.use(VueRouter)
 
-let router = new VueRouter({
-  hashbang: true,
+const router = new VueRouter({
   history: false,
   saveScrollPosition: true,
   transitionOnLoad: true
 })
 router.map(routerMap)
+router.beforeEach(({to, next}) => {
+  if (to.path === '/book' && to.query) {
+    router.go('/')
+  } else {
+    next()
+  }
+})
 router.redirect({
   '*': '/'
 })

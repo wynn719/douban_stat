@@ -1,4 +1,5 @@
 import Vue from 'vue'
+import DCache from './lib/d_cache.js'
 
 const URL_ROOT = 'https://api.douban.com/v2'
 const CACHE_TIME = 1000 * 60 * 60 * 24 * 3
@@ -16,7 +17,7 @@ export default {
     let data = {}
     let self = this
 
-    data = window.localStorage.getItem(options.userID)
+    data = DCache.get(options.userID)
     if (data) {
       data = JSON.parse(data)
       // 缓存时间超过5天
@@ -162,9 +163,12 @@ export default {
         data[year]['rating'][item.rating.value][mouth - 1]++
       }
     })
+    if (!data) {
+      return null
+    }
     // 存入localstorage中
     data.timeStamp = now
-    window.localStorage.setItem(userID, JSON.stringify(data))
+    DCache.add(userID, JSON.stringify(data))
     return data
   }
 }
