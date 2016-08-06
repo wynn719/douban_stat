@@ -15,7 +15,7 @@
 
     <!-- 统计表 -->
     <h3># 图表统计</h3>
-    <chart :chart-data="chartData.statu"></chart>
+    <chart :chart-data="chartData.statu"></chart>
     <chart :chart-data="chartData.rating"></chart>
     
     <!-- 阅读标签 -->
@@ -30,7 +30,8 @@
 <script>
 import { spinner } from 'vue-strap'
 import bookChart from '../components/chart.vue'
-import douban from '../douban.js'
+import doubanv2 from '../douban-v2.js'
+import helper from '../helper'
 
 let userID = ''
 const URL_ROOT = 'https://api.douban.com/v2'
@@ -49,10 +50,11 @@ export default {
     this.$refs.spinner.show()
     userID = this.$route.query.userid
     self.setUser()
-    douban.fetchBooks({
-      userID: userID
+    doubanv2.fetchBooks({
+      userID: userID,
+      from: helper.toRfc3339('2016-01-01 00:00:00'),
+      to: helper.toRfc3339(helper.now())
     }, (data) => { // 数据处理与绑定
-      data = data[readYear]
       if (!data) {
         this.$refs.spinner.hide()
         return

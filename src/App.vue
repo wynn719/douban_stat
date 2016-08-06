@@ -25,6 +25,7 @@ body {
   font-family: "Microsoft Yahei" !important;
 }
 #app {
+  max-width: 740px;
   margin: 100px auto;
   background-color: #fff;
   box-sizing: border-box;
@@ -32,8 +33,5 @@ body {
   border-radius: 6px;
   position: relative;
   padding-bottom: 30px;
-}
-.container {
-  max-width: 740px;
 }
 </style>

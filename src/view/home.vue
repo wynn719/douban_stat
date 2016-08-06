@@ -1,7 +1,7 @@
 <template>
   <div class="content">
     <p class="title"><strong>输入你的豆瓣个人主页地址：</strong></p>
-    <input type="text" class="userurl" placeholder="https://www.douban.com/people/81245114/" v-model="userurl" debounce="500">
+    <input type="text" class="userurl" placeholder="https://www.douban.com/people/81245114/" v-model="userurl" debounce="500" value="">
   </div>
 </template>
 <script>

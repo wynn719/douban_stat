@@ -19,7 +19,7 @@
     </div>
     <div class="text404">
       <p class="text">Oh!</p>
-      <p class="text">Someting wrong!</p>
+      <p class="text">Something wrong!</p>
       <a class="redirect" href="javascript:void(0)" @click="goBack">Go Back?</a>
       <a class="redirect" v-link="'home'">or Go Home?</a>
     </div>
