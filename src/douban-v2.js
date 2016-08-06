@@ -47,7 +47,7 @@ export default {
 
     // 从缓存中读取
     data = DCache.get(options.userID)
-    if (!data) {
+    if (data) {
       data = JSON.parse(data)
       if (data.timeStamp + CACHE_TIME > nowTimeStamp) {
         fnSuccess(data)
