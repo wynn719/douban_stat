@@ -102,7 +102,27 @@ export default {
   formatDataForChart: function (books, userID) {
     let now = new Date().getTime()
     let collections = books.collections
-    let data = {}
+    let data = {
+      books: {
+        read: [],
+        wish: [],
+        reading: []
+      },
+      collections: [],
+      rating: {
+        'no-rating': [],
+        '1': [],
+        '2': [],
+        '3': [],
+        '4': [],
+        '5': []
+      },
+      status: {
+        read: [],
+        wish: [],
+        reading: []
+      }
+    }
 
     // 数据格式处理
     collections.forEach((item) => {
@@ -110,26 +130,19 @@ export default {
       let mouth = Number(updated[1])
 
       // 数据容器初始化
-      data['collections'] = data['collections'] || []
       data['collections'].push(item)
-      data['books'] = data['books'] || {}
-      data['books'][item.status] = data['books'][item.status] || []
       data['books'][item.status].push(item)
       // 月份读书量统计数据
-      data['status'] = data['status'] || {}
-      data['status'][item.status] = data['status'][item.status] || []
       for (let i = 0; i < 12; i++) { // 补空值
         data['status'][item.status][i] = data['status'][item.status][i] || null
       }
       data['status'][item.status][mouth - 1]++
       // 月份星级评价统计数据，只取已读的星级评价
       if (item.status === 'read') {
-        data['rating'] = data['rating'] || {}
         if (item.rating === undefined) { // 用户无评价
           item.rating = {}
           item.rating.value = 'no-rating'
         }
-        data['rating'][item.rating.value] = data['rating'][item.rating.value] || []
         for (let i = 0; i < 12; i++) { // 补空值
           data['rating'][item.rating.value][i] = data['rating'][item.rating.value][i] || null
         }

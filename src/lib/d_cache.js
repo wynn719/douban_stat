@@ -14,7 +14,6 @@ export default {
       if (self._isQuotaExceeded(e)) { // 超出缓存容量
         // 不做缓存处理
         self.clear()
-        self.setItem(key, value)
         return this
       }
     }

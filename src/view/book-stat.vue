@@ -96,10 +96,15 @@ export default {
     // 设置统计数据
     setStatistics: function (data) {
       let books = data['books']['read']
+
+      if (!books.length) {
+        return
+      }
+
       let self = this
       let readTime = {}
       let allReadTime = 0
-      let total = books.length
+      let total = books.length || 0
       let firstRead = books[total - 1]
       let lastRead = books[0]
 
