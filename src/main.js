@@ -9,7 +9,7 @@ Vue.http.options.root = 'https://api.douban.com'
 Vue.use(VueRouter)
 
 const router = new VueRouter({
-  history: true,
+  history: false,
   saveScrollPosition: true,
   transitionOnLoad: true
   // waitForData: true
