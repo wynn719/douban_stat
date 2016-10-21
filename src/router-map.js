@@ -1,21 +1,38 @@
-import Home from './view/home.vue'
-import BookView from './view/book-stat.vue'
-import UnknownView from './view/unknown.vue'
-
 export default {
   '': { // 首页
-    component: Home
+    component (resolve) {
+      require(['./view/home.vue'], resolve)
+    }
   },
 
   'home': { // 首页
-    component: Home
+    component (resolve) {
+      require(['./view/home.vue'], resolve)
+    }
   },
 
-  '/book': { // 阅读统计页
-    component: BookView
+  '/book': {
+    component (resolve) {
+      require(['./view/book-stat.vue'], resolve)
+    }
   },
 
   '/unknown': {
-    component: UnknownView
+    component (resolve) {
+      require(['./view/unknown.vue'], resolve)
+    }
+  },
+
+  '/wechat/home': {
+    component: require('./view/wechat/index.vue')
+  },
+
+  '/wechat/list': {
+    component: require('./view/wechat/list.vue')
+  },
+
+  '/wechat/:id': {
+    name: 'wechat_show',
+    component: require('./view/wechat/show.vue')
   }
 }
